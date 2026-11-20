@@ -4,6 +4,8 @@ A live web dashboard that decodes **VHF ACARS** text messages from aircraft
 near you with an RTL-SDR, and displays them as a scrolling feed enriched with
 each aircraft's identity and position from a public ADS-B API.
 
+![acars-ticker — live map of nearby aircraft beside a decoded ACARS message feed, with a security lens tagging what each plaintext message leaks](docs/screenshot.png)
+
 Looks like an airport ops room: dark terminal aesthetic, monospace, colour-coded
 airlines, a per-hour message-mix donut, and live per-channel activity bars. The
 main view is a **live map** centred on your location with a plane marker per
@@ -15,7 +17,7 @@ message feed**.
 > it. No ADS-B receive hardware is used — identity/position come from a free
 > public API, read-only and cached.
 
-— built by **iceo96**
+— built by **iceo96**, **Ameezoz**, and **R_0xF** · presented at **OWASP Amman**
 
 ---
 
