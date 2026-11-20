@@ -1,0 +1,42 @@
+# acars-ticker systemd unit — user service.
+# Author: iceo96
+#
+# Install (per-user, recommended — no root, keeps dongle access simple):
+#   mkdir -p ~/.config/systemd/user
+#   cp systemd/acars-ticker.service ~/.config/systemd/user/
+#   # edit WorkingDirectory/ExecStart below to match where you cloned the repo
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now acars-ticker
+#   journalctl --user -u acars-ticker -f
+#
+# For a system-wide unit instead, drop this in /etc/systemd/system/, set
+# User=<you>, and make sure that user is in the 'plugdev' group for RTL-SDR.
+
+[Unit]
+Description=acars-ticker — live VHF ACARS decoder + web dashboard
+Documentation=https://github.com/iceo96/acars-ticker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# --- EDIT THESE TWO PATHS ---
+WorkingDirectory=%h/Desktop/Air-Bas
+ExecStart=%h/Desktop/Air-Bas/.venv/bin/python -m acars_ticker
+# ----------------------------
+Restart=on-failure
+RestartSec=5
+# Keep journald output tidy; the app already logs at INFO.
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=acars-ticker
+# Give acarsdec time to settle on restart
+TimeoutStopSec=15
+# Hardening (loosen if your dongle access needs it)
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=%h/.local/share/acars-ticker
+
+[Install]
+WantedBy=default.target

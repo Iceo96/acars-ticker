@@ -1,0 +1,66 @@
+; acars-ticker configuration
+; Copy to ~/.config/acars-ticker.ini and edit.
+; Author: iceo96
+;
+; Every value here is optional — anything you omit falls back to the built-in
+; European defaults. Run `python -m acars_ticker --scan` to find the strongest
+; channels for your location and paste the suggested [radio] block.
+
+[radio]
+; RTL-SDR device index (first dongle = 0)
+device_index = 0
+; Frequency correction in PPM for your specific dongle (0 if unknown)
+ppm = 0
+; Gain in dB, or "auto" to let acarsdec pick
+gain = auto
+; Up to 4 channels from one dongle (2.4 MS/s). Comma or space separated, MHz.
+;
+; Europe (default):
+channels = 131.525, 131.725, 131.825, 136.900
+; United States — uncomment to use:
+; channels = 130.025, 131.125, 131.550
+; Weak signal? Drop to one or two of the strongest:
+; channels = 131.725
+;
+; UDP port acarsdec sends JSON datagrams to (collector listens here)
+udp_port = 5555
+; Path to the acarsdec binary if not on PATH
+acarsdec_bin = acarsdec
+
+[storage]
+db_path = ~/.local/share/acars-ticker/acars.db
+retention_days = 30
+
+[enrichment]
+; ADS-B lookup provider: adsb.lol or adsb.fi
+provider = adsb.lol
+; Override the base URL if you self-host or the provider changes paths
+; base_url =
+cache_seconds = 600
+timeout = 4.0
+
+[web]
+host = 127.0.0.1
+port = 8080
+
+[location]
+; Map "home" — where the map centers and the receiver marker is drawn.
+; Defaults to the operator's pin near Amman, Jordan.
+lat = 31.962958
+lon = 35.812154
+zoom = 7
+; If true, the browser also tries to geolocate you and recenters the map on
+; your real position (you'll get a one-time browser permission prompt).
+geolocate = true
+; Show ALL nearby aircraft on the map (Flightradar-style), pulled from the
+; ADS-B area API — not just the ones that sent an ACARS message. Planes that
+; are talking on ACARS are highlighted. Still API-only, no extra hardware.
+show_traffic = true
+; Radius for that area query, in nautical miles (the API caps this at 250).
+traffic_radius_nm = 250
+
+[scan]
+; rtl_power sweep range:step for --scan
+range = 130M:137M:25k
+; integration seconds per --scan run
+integration = 15

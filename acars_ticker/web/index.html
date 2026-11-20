@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>acars-ticker</title>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"
+        integrity="sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWIH0iZhZT1H2TbOq55xssQGEJHEaIm+PgoUaZbRvQTNTluNOEfb1ZRy6D3BOw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <!-- Intro splash: the projector opener. Dismisses on click / any key / 8s. -->
+  <div id="intro" class="intro">
+    <div class="intro-inner">
+      <div class="intro-kicker">OWASP Amman · live demo</div>
+      <h1 class="intro-title">ACARS&nbsp;TICKER</h1>
+      <div class="intro-tag">
+        Aircraft are talking over our heads — <b>in plaintext</b>.<br>
+        We pull it out of the air with a&nbsp;$20 radio.
+      </div>
+      <div class="intro-meta">
+        <span>🔓 zero encryption</span>
+        <span>📡 passive receive</span>
+        <span>✈ live map</span>
+      </div>
+      <button id="intro-start" class="intro-start">▶&nbsp; start the feed</button>
+      <div class="intro-team">iceo96 · Ameezoz · R_0xF</div>
+    </div>
+  </div>
+
+  <div id="banner" class="banner hidden"></div>
+
+  <header id="topbar">
+    <div class="brand">
+      <span class="dot" id="rx-dot"></span>
+      <span class="title">ACARS&nbsp;TICKER</span>
+      <span class="sub" id="rx-detail">starting…</span>
+      <span class="secbadge" title="ACARS has no encryption, no authentication, and no integrity checks — anyone with a radio can receive it">🔓 UNENCRYPTED · UNAUTHENTICATED</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><span class="num" id="st-rate">0</span><span class="lbl">msgs/min</span></div>
+      <div class="stat"><span class="num" id="st-uniq">0</span><span class="lbl">aircraft/hr</span></div>
+      <div class="stat"><span class="num" id="st-err">0%</span><span class="lbl">err rate</span></div>
+      <div class="stat channels" id="st-channels" title="per-channel activity (last hour)"></div>
+    </div>
+    <div class="donut-wrap" title="last hour message mix">
+      <svg id="donut" width="74" height="74" viewBox="0 0 74 74"></svg>
+      <div id="donut-legend"></div>
+    </div>
+  </header>
+
+  <nav id="filters">
+    <div class="chip-group" id="bucket-chips" data-kind="bucket"></div>
+    <div class="chip-group" id="airline-chips" data-kind="airline"></div>
+    <div class="chip-group" id="freq-chips" data-kind="freq"></div>
+    <label class="quiet">
+      <input type="checkbox" id="seclens-toggle" /> 🔓 security lens
+    </label>
+    <label class="quiet">
+      <input type="checkbox" id="quiet-toggle" /> quiet mode <span class="hint">(hide misc)</span>
+    </label>
+    <button id="present-btn" class="present-btn" title="presentation mode (P) · fullscreen (F)">⛶ present</button>
+  </nav>
+
+  <main>
+    <section id="map-pane">
+      <div id="map"></div>
+      <div id="map-badge">
+        <span id="ac-count">0</span> aircraft nearby ·
+        <span class="lgnd"><i style="background:#f5c542"></i>traffic</span>
+        <span class="lgnd"><i style="background:#06e0ff"></i>on ACARS</span> ·
+        <button id="recenter" title="recenter on my location">⌖ my location</button>
+      </div>
+    </section>
+
+    <section id="feed-wrap">
+      <div class="feed-head">live messages</div>
+      <table id="feed">
+        <tbody id="feed-body"></tbody>
+      </table>
+      <div id="empty" class="empty">waiting for messages…</div>
+    </section>
+
+    <aside id="panel" class="hidden">
+      <button id="panel-close" aria-label="close">×</button>
+      <div class="panel-head">
+        <div class="panel-reg" id="panel-reg">—</div>
+        <div class="panel-type" id="panel-type"></div>
+      </div>
+      <div class="panel-pos" id="panel-pos"></div>
+      <div class="panel-thread-label">last 10 messages</div>
+      <div id="panel-thread"></div>
+    </aside>
+  </main>
+
+  <div id="tooltip" class="tooltip hidden"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"
+          integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="/static/app.js"></script>
+  <footer class="credit">acars-ticker · VHF ACARS only · built by iceo96</footer>
+</body>
+</html>

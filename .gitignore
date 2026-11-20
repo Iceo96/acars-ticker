@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+*.db
+*.db-wal
+*.db-shm
+.DS_Store
+
+# local deck export (kept out of repo; PDF is the backup)
+ACARS Ticker — OWASP Amman.html

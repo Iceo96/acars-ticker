@@ -1,0 +1,26 @@
+[project]
+name = "acars-ticker"
+version = "1.0.0"
+description = "Live VHF ACARS decoding dashboard (RTL-SDR + acarsdec) with ADS-B enrichment"
+authors = [{ name = "iceo96" }]
+requires-python = ">=3.11"
+readme = "README.md"
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+    "httpx>=0.27",
+    "websockets>=12.0",
+]
+
+[project.scripts]
+acars-ticker = "acars_ticker.__main__:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["acars_ticker"]
+
+[tool.setuptools.package-data]
+acars_ticker = ["web/*"]
