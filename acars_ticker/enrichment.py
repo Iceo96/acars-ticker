@@ -23,11 +23,14 @@ log = logging.getLogger("acars_ticker.enrichment")
 class Enricher:
     def __init__(
         self,
-        base_url: str,
+        base_urls: list[str] | str,
         cache_seconds: int = 600,
         timeout: float = 4.0,
     ):
-        self.base_url = base_url.rstrip("/")
+        if isinstance(base_urls, str):
+            base_urls = [base_urls]
+        # Try each in order; a 429 / error on one falls through to the next.
+        self.base_urls = [u.rstrip("/") for u in base_urls if u]
         self.cache_seconds = cache_seconds
         self.timeout = timeout
         # reg -> (expires_at, meta|None)
@@ -77,22 +80,27 @@ class Enricher:
         Returns a list of normalized aircraft dicts that have a position.
         """
         dist_nm = max(1, min(int(dist_nm), 250))  # endpoint caps at 250 nm
-        url = f"{self.base_url}/v2/lat/{lat:.4f}/lon/{lon:.4f}/dist/{dist_nm}"
-        try:
-            resp = await self._client.get(url)
-            if resp.status_code != 200:
-                log.debug("nearby lookup HTTP %s", resp.status_code)
-                return []
-            data = resp.json()
-        except (httpx.HTTPError, ValueError) as exc:
-            log.debug("nearby lookup failed: %s", exc)
-            return []
-        out = []
-        for ac in (data.get("ac") or data.get("aircraft") or []):
-            m = self._normalize(ac)
-            if m["lat"] is not None and m["lon"] is not None:
-                out.append(m)
-        return out
+        path = f"/v2/lat/{lat:.4f}/lon/{lon:.4f}/dist/{dist_nm}"
+        last: list[dict[str, Any]] = []
+        for base in self.base_urls:
+            try:
+                resp = await self._client.get(base + path)
+                if resp.status_code != 200:  # e.g. 429 rate limit -> try next
+                    log.debug("nearby %s -> HTTP %s", base, resp.status_code)
+                    continue
+                data = resp.json()
+            except (httpx.HTTPError, ValueError) as exc:
+                log.debug("nearby %s failed: %s", base, exc)
+                continue
+            out = []
+            for ac in (data.get("ac") or data.get("aircraft") or []):
+                m = self._normalize(ac)
+                if m["lat"] is not None and m["lon"] is not None:
+                    out.append(m)
+            if out:
+                return out
+            last = out  # empty answer; remember but try the other provider
+        return last
 
     async def lookup(self, reg: str) -> dict[str, Any] | None:
         """Look up an aircraft by registration. Returns meta dict or None."""
@@ -106,23 +114,23 @@ class Enricher:
             return cached[1]
 
         meta: dict[str, Any] | None = None
-        url = f"{self.base_url}/v2/registration/{reg}"
-        try:
-            resp = await self._client.get(url)
-            if resp.status_code == 200:
-                data = resp.json()
-                aclist = data.get("ac") or []
-                if aclist:
-                    meta = self._normalize(aclist[0])
-            elif resp.status_code == 429:
-                log.warning("ADS-B rate limited (429); backing off for reg %s", reg)
-                # short cache so we retry soon but not immediately
-                self._cache[reg] = (now + 30, None)
-                return None
-            else:
-                log.debug("ADS-B lookup %s -> HTTP %s", reg, resp.status_code)
-        except (httpx.HTTPError, ValueError) as exc:
-            log.debug("ADS-B lookup failed for %s: %s", reg, exc)
+        for base in self.base_urls:
+            try:
+                resp = await self._client.get(f"{base}/v2/registration/{reg}")
+                if resp.status_code == 200:
+                    aclist = resp.json().get("ac") or []
+                    if aclist:
+                        meta = self._normalize(aclist[0])
+                        break
+                    # 200 but empty — not live here; try the other provider
+                elif resp.status_code == 429:
+                    log.debug("ADS-B 429 from %s for %s", base, reg)
+                    continue
+                else:
+                    log.debug("ADS-B %s -> HTTP %s for %s", base, resp.status_code, reg)
+            except (httpx.HTTPError, ValueError) as exc:
+                log.debug("ADS-B lookup %s failed for %s: %s", base, reg, exc)
 
-        self._cache[reg] = (now + self.cache_seconds, meta)
+        # Found: cache for the full TTL. Not found: short TTL so we retry soon.
+        self._cache[reg] = (now + (self.cache_seconds if meta else 60), meta)
         return meta

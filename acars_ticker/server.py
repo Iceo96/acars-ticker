@@ -72,7 +72,7 @@ def create_app(
     manager = ConnectionManager()
     storage = Storage(cfg.db_path)
     enricher = Enricher(
-        cfg.resolved_adsb_base_url,
+        cfg.adsb_base_urls(),
         cache_seconds=cfg.enrich_cache_seconds,
         timeout=cfg.enrich_timeout,
     )

@@ -33,7 +33,7 @@ retention_days = 30
 
 [enrichment]
 ; ADS-B lookup provider: adsb.lol or adsb.fi
-provider = adsb.lol
+provider = adsb.fi
 ; Override the base URL if you self-host or the provider changes paths
 ; base_url =
 cache_seconds = 600

@@ -38,7 +38,7 @@ class Config:
     retention_days: int = 30
 
     # --- enrichment ---
-    adsb_provider: str = "adsb.lol"  # or "adsb.fi"
+    adsb_provider: str = "adsb.fi"  # or "adsb.lol" (we fall back to the other)
     adsb_base_url: str = ""  # derived from provider if blank
     enrich_cache_seconds: int = 600  # 10 minutes
     enrich_timeout: float = 4.0
@@ -62,14 +62,27 @@ class Config:
     scan_range: str = "130M:137M:25k"
     scan_integration: str = "15"
 
+    # Base URL per provider. Note adsb.fi's v2 API lives under /api.
+    _PROVIDER_URLS = {
+        "adsb.fi": "https://opendata.adsb.fi/api",
+        "adsb.lol": "https://api.adsb.lol",
+    }
+
     @property
     def resolved_adsb_base_url(self) -> str:
         if self.adsb_base_url:
             return self.adsb_base_url.rstrip("/")
-        return {
-            "adsb.lol": "https://api.adsb.lol",
-            "adsb.fi": "https://opendata.adsb.fi",
-        }.get(self.adsb_provider, "https://api.adsb.lol")
+        return self._PROVIDER_URLS.get(self.adsb_provider, "https://opendata.adsb.fi/api")
+
+    def adsb_base_urls(self) -> list[str]:
+        """Primary provider first, then the other as an automatic fallback,
+        so one provider rate-limiting (HTTP 429) doesn't empty the map."""
+        primary = self.resolved_adsb_base_url
+        urls = [primary]
+        for u in self._PROVIDER_URLS.values():
+            if u != primary:
+                urls.append(u)
+        return urls
 
 
 def _parse_channels(raw: str) -> list[float]:
