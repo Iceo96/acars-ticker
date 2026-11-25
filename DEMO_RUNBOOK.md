@@ -1,7 +1,6 @@
-# ACARS Ticker — OWASP Amman demo runbook
+# ACARS Ticker — demo runbook
 
-Everything the three of you need to run the live demo without surprises.
-Team: **iceo96 · Ameezoz · R_0xF**
+Everything you need to run the live demo without surprises.
 
 ---
 
@@ -70,13 +69,13 @@ Hotkeys: **`P`** present · **`S`** security lens · **`F`** fullscreen · **`�
 
 ---
 
-## 4. Who presents what (suggested — swap freely)
+## 4. Talk flow (slide order)
 
-- **Presenter 1 — iceo96:** cover → hook → what is ACARS → the security gap → what an eavesdropper learns → legal/ethical (slides 1–6).
-- **Presenter 2 — Ameezoz:** architecture → stack → features → **runs the live demo** → resilience (slides 7–11).
-- **Presenter 3 — R_0xF:** lessons learned → defenses → try it yourself → close + Q&A (slides 12–15).
+The deck runs in this order, with speaker notes on every slide:
 
-Speaker notes are on every slide in the deck (each presenter's section is labeled).
+1. Cover → hook → what is ACARS → the security gap → what an eavesdropper learns → legal/ethical.
+2. Architecture → stack → features → **live demo** → resilience.
+3. Lessons learned → defenses → try it yourself → close + Q&A.
 
 ---
 
@@ -87,7 +86,7 @@ Speaker notes are on every slide in the deck (each presenter's section is labele
 - **How far does it reach?** Line-of-sight VHF — up to ~200 nautical miles from an aircraft at cruise altitude.
 - **Is this ADS-B / Flightradar?** No. ADS-B is a separate system; we use a public ADS-B API *read-only* to add aircraft identity and position. ACARS is the messaging link we decode.
 - **Did you build the radio decoder?** No — `acarsdec` (open source) does the signal demodulation. We built everything after it: the pipeline, storage, classification, enrichment, and the live UI.
-- **Why does it matter for OWASP?** It's a live, cheap demonstration that the same failures we chase in web apps — A02 Cryptographic Failures, A07 Authentication Failures — still run unpatched in global critical infrastructure.
+- **Why does it matter?** It's a live, cheap demonstration that the same failures we chase in web apps — A02 Cryptographic Failures, A07 Authentication Failures — still run unpatched in global critical infrastructure.
 
 ---
 

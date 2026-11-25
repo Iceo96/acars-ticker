@@ -17,7 +17,7 @@ message feed**.
 > it. No ADS-B receive hardware is used — identity/position come from a free
 > public API, read-only and cached.
 
-— built by **iceo96**, **Ameezoz**, and **R_0xF** · presented at **OWASP Amman**
+— built by **iceo96**
 
 ---
 

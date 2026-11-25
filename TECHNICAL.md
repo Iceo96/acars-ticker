@@ -1,7 +1,8 @@
 # How acars-ticker works — technical deep dive & FAQ
 
-A study guide for the team (iceo96 · Ameezoz · R_0xF) before the OWASP Amman
-talk. Read this and you can field the hard questions with confidence.
+A technical deep dive into how acars-ticker works, plus answers to the
+questions people ask most. Read this and you can explain any part of the
+project with confidence.
 
 ---
 
@@ -122,7 +123,7 @@ feed**. We did not write the radio decoder — we built everything after it.
 
 ---
 
-## 5. The security story (the OWASP core)
+## 5. The security story
 
 - ACARS was designed in **1978** with **no encryption, no authentication, no
   integrity**. Every message is readable plaintext over the air.
@@ -221,13 +222,3 @@ Don't bluff in front of a security crowd. Say:
 
 Then move on. Honesty + a clear scope answer beats a wrong confident answer
 every time.
-
----
-
-## 9. Who knows what (suggested split)
-
-- **iceo96** — the security story, ACARS background, the live demo narration.
-- **Ameezoz** — the pipeline & architecture (sections 2–3), the stack choices.
-- **R_0xF** — RF/SDR details (how the dongle + acarsdec work), limitations & defenses.
-
-Everyone should be able to answer section 6. That's the safety net.
