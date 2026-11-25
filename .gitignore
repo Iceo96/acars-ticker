@@ -10,5 +10,6 @@ dist/
 *.db-shm
 .DS_Store
 
-# local deck export (kept out of repo; PDF is the backup)
-ACARS Ticker — OWASP Amman.html
+# local deck exports and generated slide files
+/*.html
+*.pdf
